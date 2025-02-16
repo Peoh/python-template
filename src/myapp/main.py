@@ -1,5 +1,3 @@
-from sys import exit
-
 from myapp.mylib.lib import lib_hello
 
 

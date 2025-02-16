@@ -1,68 +1,74 @@
-.PHONY:format lint clean clean-docs clean-coverage clean-dist test test-all run coverage coverage-all live-docs build-wheel
+SRC_DIR = src/
+TEST_DIR = tests/
+PYTHON_VERSION ?= 3.11
 
-format:
-	tox -p -e format
+UV_RUN=uv run --python $(PYTHON_VERSION)
 
-lint:
-	tox -p -e lint
+.PHONY:sync
+sync:
+	uv python install $(PYTHON_VERSION)
+	uv sync
 
-clean: clean-docs clean-coverage clean-dist
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '__pycache__' -exec rm -fr {} +
-	rm -rf .tox/
+.PHONY:format
+format: sync
+	uv lock
+	$(UV_RUN) ruff format $(SRC_DIR) $(TEST_DIR)
+
+.PHONY:fix
+fix: sync
+	$(UV_RUN) ruff check --fix $(SRC_DIR) $(TEST_DIR)
+	$(UV_RUN) mypy $(SRC_DIR) $(TEST_DIR)
+
+.PHONY:lint
+lint: sync
+	$(UV_RUN) ruff check --fix $(SRC_DIR) $(TEST_DIR)
+	$(UV_RUN) mypy $(SRC_DIR) $(TEST_DIR)
+
+.PHONY:test
+test: sync
+	$(UV_RUN) coverage run -m pytest
+
+.PHONY:run
+run: sync
+	$(UV_RUN) src/myapp/main.py
+
+.PHONY:coverage
+coverage: test
+	-$(UV_RUN) coverage combine
+	$(UV_RUN) coverage report
+	$(UV_RUN) coverage xml
+	$(UV_RUN) coverage html
+
+.PHONY:docs
+docs: clean-docs
+	$(UV_RUN) pdoc -o docs/ src/myapp
+
+.PHONY: live-docs
+live-docs: clean-docs
+	$(UV_RUN) pdoc src/myapp
+
+.PHONY:build
+build:
+	uv build
+
+.PHONY:clean
+clean: clean-docs clean-coverage clean-build
+	uv clean
 	rm -rf .pytest_cache
 	rm -rf .mypy_cache
-	rm -rf venv
+	rm -rf .ruff_cache
+	rm -rf .venv
 
+.PHONY:clean-docs
 clean-docs:
 	rm -rf docs/
 
+.PHONY:clean-coverage
 clean-coverage:
 	rm -f .coverage*
 	rm -f coverage.xml
 	rm -rf htmlcov/
 
-clean-dist:
+.PHONY:clean-build
+clean-build:
 	rm -rf dist
-	rm -rf build
-
-test:
-	tox -e py3
-
-test-all:
-	tox -p -e py3,py37,py38,py39,py310,py311
-
-run: export PYTHONPATH = $(CURDIR)/src
-run: setup
-	. venv/bin/activate
-	python src/myapp/main.py
-
-coverage: clean-coverage
-	tox -e py3,coverage
-
-coverage-all: clean-coverage
-	tox -p -e py3,py37,py38,py39,py310,py311
-	tox -e coverage
-
-docs: clean-docs
-	tox -e docs
-
-live-docs: clean-docs
-	tox -e live-docs
-
-sdist-wheel: clean-dist
-	tox -e build -- --sdist
-
-dist-wheel: clean-dist
-	tox -e build -- --wheel
-
-install: clean
-	pip install .
-
-venv/setup_done: requirements.txt
-	test -d venv || python -m venv venv
-	. venv/bin/activate
-	pip install -r requirements.txt
-	touch venv/setup_done
-
-setup: venv/setup_done
