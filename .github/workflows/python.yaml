@@ -2,90 +2,73 @@ name: Python check
 
 on: [push]
 
+env:
+  PYTHON_VERSION: 3.11
+
 jobs:
 
   lint:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.x
-        uses: actions/setup-python@v4
-        with:
-          # Semantic version range syntax or exact version of a Python version
-          python-version: '3.x'
-      - name: Install tox and any other packages
-        run: pip install tox
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Init project
+        run: make sync PYTHON_VERSION=$PYTHON_VERSION
       - name: Run linter
-        # Run tox using the version of Python in `PATH`
-        run: make lint
+        run: make lint PYTHON_VERSION=$PYTHON_VERSION
 
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.7", "3.8","3.9", "3.10", "3.11"]
+        python: ["3.11", "3.12", "3.13"]
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install tox and any other packages
-        run: pip install tox
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Init project
+        run: make sync PYTHON_VERSION=$PYTHON_VERSION
       - name: Run test
-        # Run tox using the version of Python in `PATH`
-        run: make test
+        run: make test PYTHON_VERSION=$PYTHON_VERSION
 
   coverage:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.7", "3.8","3.9", "3.10", "3.11"]
+        python: ["3.11", "3.12", "3.13"]
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install tox and any other packages
-        run: pip install tox
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Init project
+        run: make sync PYTHON_VERSION=$PYTHON_VERSION
       - name: Run coverage
-        # Run tox using the version of Python in `PATH`
-        run: make coverage
+        run: make coverage PYTHON_VERSION=$PYTHON_VERSION
 
   docs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.x
-        uses: actions/setup-python@v4
-        with:
-          # Semantic version range syntax or exact version of a Python version
-          python-version: '3.x'
-      - name: Install tox and any other packages
-        run: pip install tox
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Init project
+        run: make sync PYTHON_VERSION=$PYTHON_VERSION
       - name: Run docs
-        # Run tox using the version of Python in `PATH`
-        run: make docs
+        run: make docs PYTHON_VERSION=$PYTHON_VERSION
 
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.x
-        uses: actions/setup-python@v4
-        with:
-          # Semantic version range syntax or exact version of a Python version
-          python-version: '3.x'
-      - name: Install tox and any other packages
-        run: pip install tox
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Init project
+        run: make sync PYTHON_VERSION=$PYTHON_VERSION
       - name: Run build
-        # Run tox using the version of Python in `PATH`
-        run: |
-          make sdist-wheel
-          make dist-wheel
+        run: make build PYTHON_VERSION=$PYTHON_VERSION
