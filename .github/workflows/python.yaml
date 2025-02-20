@@ -20,6 +20,7 @@ jobs:
         run: make lint PYTHON_VERSION=$PYTHON_VERSION
 
   test:
+    needs: lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -35,6 +36,7 @@ jobs:
         run: make test PYTHON_VERSION=$PYTHON_VERSION
 
   coverage:
+    needs: test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -50,6 +52,7 @@ jobs:
         run: make coverage PYTHON_VERSION=$PYTHON_VERSION
 
   docs:
+    needs: coverage
     runs-on: ubuntu-latest
 
     steps:
@@ -62,6 +65,7 @@ jobs:
         run: make docs PYTHON_VERSION=$PYTHON_VERSION
 
   build:
+    needs: docs
     runs-on: ubuntu-latest
 
     steps:
