@@ -7,15 +7,27 @@ env:
 
 jobs:
 
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Init project
+        run: make sync PYTHON_VERSION=$PYTHON_VERSION
+
   lint:
+    needs: sync
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - name: Init project
-        run: make sync PYTHON_VERSION=$PYTHON_VERSION
+        with:
+          enable-cache: true
       - name: Run linter
         run: make lint PYTHON_VERSION=$PYTHON_VERSION
 
@@ -32,8 +44,6 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - name: Init project
-        run: make sync PYTHON_VERSION=$PYTHON_VERSION
       - name: Run test
         run: make test PYTHON_VERSION=$PYTHON_VERSION
 
@@ -50,8 +60,6 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - name: Init project
-        run: make sync PYTHON_VERSION=$PYTHON_VERSION
       - name: Run coverage
         run: make coverage PYTHON_VERSION=$PYTHON_VERSION
 
@@ -65,8 +73,6 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - name: Init project
-        run: make sync PYTHON_VERSION=$PYTHON_VERSION
       - name: Run docs
         run: make docs PYTHON_VERSION=$PYTHON_VERSION
 
@@ -80,7 +86,5 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - name: Init project
-        run: make sync PYTHON_VERSION=$PYTHON_VERSION
       - name: Run build
         run: make build PYTHON_VERSION=$PYTHON_VERSION
