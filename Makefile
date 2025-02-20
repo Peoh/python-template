@@ -1,8 +1,7 @@
 SRC_DIR = src/
 TEST_DIR = tests/
-PYTHON_VERSION ?= 3.11
+UV_PYTHON ?= 3.11
 
-UV_RUN=uv run --python $(PYTHON_VERSION)
 
 .PHONY:sync
 sync:
@@ -10,42 +9,41 @@ sync:
 	uv sync
 
 .PHONY:format
-format: sync
-	uv lock
-	$(UV_RUN) ruff format $(SRC_DIR) $(TEST_DIR)
+format:
+	uv run ruff format $(SRC_DIR) $(TEST_DIR)
 
 .PHONY:fix
-fix: sync
-	$(UV_RUN) ruff check --fix $(SRC_DIR) $(TEST_DIR)
-	$(UV_RUN) mypy $(SRC_DIR) $(TEST_DIR)
+fix:
+	uv run ruff check --fix $(SRC_DIR) $(TEST_DIR)
+	uv run mypy $(SRC_DIR) $(TEST_DIR)
 
 .PHONY:lint
-lint: sync
-	$(UV_RUN) ruff check --fix $(SRC_DIR) $(TEST_DIR)
-	$(UV_RUN) mypy $(SRC_DIR) $(TEST_DIR)
+lint:
+	uv run ruff check --fix $(SRC_DIR) $(TEST_DIR)
+	uv run mypy $(SRC_DIR) $(TEST_DIR)
 
 .PHONY:test
-test: sync
-	$(UV_RUN) coverage run -m pytest
+test:
+	uv run coverage run -m pytest
 
 .PHONY:run
-run: sync
-	$(UV_RUN) src/myapp/main.py
+run:
+	uv run src/myapp/main.py
 
 .PHONY:coverage
-coverage: test
-	-$(UV_RUN) coverage combine
-	$(UV_RUN) coverage report
-	$(UV_RUN) coverage xml
-	$(UV_RUN) coverage html
+coverage:test
+	-uv run coverage combine
+	uv run coverage report
+	uv run coverage xml
+	uv run coverage html
 
 .PHONY:docs
 docs: clean-docs
-	$(UV_RUN) pdoc -o docs/ src/myapp
+	uv run pdoc -o docs/ src/myapp
 
 .PHONY: live-docs
 live-docs: clean-docs
-	$(UV_RUN) pdoc src/myapp
+	uv run pdoc src/myapp
 
 .PHONY:build
 build:
