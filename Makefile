@@ -15,11 +15,10 @@ format:
 .PHONY:fix
 fix:
 	uv run ruff check --fix $(SRC_DIR) $(TEST_DIR)
-	uv run mypy $(SRC_DIR) $(TEST_DIR)
 
 .PHONY:lint
 lint:
-	uv run ruff check --fix $(SRC_DIR) $(TEST_DIR)
+	uv run ruff check $(SRC_DIR) $(TEST_DIR)
 	uv run mypy $(SRC_DIR) $(TEST_DIR)
 
 .PHONY:test
